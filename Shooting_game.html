@@ -1,0 +1,270 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, intial-scale=1">
+    <title>---shooting---</title>
+    <style>
+      canvas{
+      height:100%;
+      width:100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- HTML -->
+    <canvas id="game"></canvas>
+  </body>
+  <script>
+  
+  	 var cvs =document.getElementById("game");
+    var ctx = cvs.getContext("2d");
+    
+    var startgameimage = new Image();
+    startgameimage.src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTClW2ORcWfVgIw3V4GJtQ7hOOFIQ80h4nYVQ&usqp=CAU";
+    
+    var gameoverimage = new Image();
+    gameoverimage.src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTokIPzFA9FOow_V18oTpqW8C9uklAUkPTJNw&usqp=CAU";
+    
+    var background = new Image();
+    background.src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdED4WYOz8Puz5vGCtxOMeyefo7JF72y5N5g&usqp=CAU";
+    
+    var z = new Image();
+    z.src="https://raw.githubusercontent.com/bluefeversoft/html_invaders/master/ch9/assets/playerShip1_blue.png";
+    
+    var o = new Image();
+    o.src="https://raw.githubusercontent.com/Abilityguy/Space-Shooter/master/Images/bullet.png";
+    
+    var c = new Image();
+    c.src="https://raw.githubusercontent.com/Abilityguy/Space-Shooter/master/Images/enemy.png";
+    
+    
+    var hH = 3;
+    var bu = 100;
+    
+    
+    const state = {
+     current : 0,
+     startgame : 0,
+     game : 1,
+     gameover : 2
+    };
+      
+    function options(){
+     ctx.fillStyle="#FF0500";
+     ctx.fillText("L e f t",10,130);
+     ctx.fillText("R i g h t",250,130);
+     ctx.fillText("F i r e",130,60);
+     ctx.font="20px Arial";
+    }
+    
+    function powerbullets(x,y,w,h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    
+    this.draw = function(){ ctx.drawImage(o,this.x,this.y,this.w,this.h);
+    }
+    
+    this.update = function(){
+    this.y+=1;
+    }
+    }
+    
+      function blue(x,y,w,h){
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        
+        this.draw = function(){ 
+ctx.drawImage(z,this.x,this.y,this.w,this.h);
+        }
+       
+       this.moveright = function(){
+        this.x += 8;
+       }
+       
+       this.moveleft = function(){
+        this.x -= 8;
+       }
+      }
+      
+      function red(x,y,w,h){
+       this.x = x;
+       this.y = y;
+       this.w = w;
+       this.h = h;
+       
+       this.draw = function(){
+         ctx.drawImage(c,this.x,this.y,this.w,this.h);
+       }
+       
+       this.update = function(){
+        this.y+=0.3;
+       }
+       
+      }
+      
+      function hbullet(x,y,w,h){
+       this.x = x+15;
+       this.y = y-h;
+       this.w = w;
+       this.h = h;
+       
+       this.draw = function(){ ctx.drawImage(o,this.x,this.y,this.w,this.h);
+       }
+       
+       this.update = function(){
+        this.y -= 5;
+        
+       }
+       
+      }
+
+    var hero = new blue(125,100,30,10);
+    var pba = [];
+    
+    
+    function powersarray(){
+   var pB = new powerbullets(Math.floor(Math.random() * 200)+30,-5,20,15);
+    pba.push(pB);
+    }
+    
+   var villain = []; 
+   var v = new red(Math.floor(Math.random() * 200)+30,Math.floor(Math.random() * 10),90,40);
+   var bullets = [];
+   villain.push(v);
+   
+   function newvillain(){
+   var v = new red(Math.floor(Math.random() * 200)+30,Math.floor(Math.random() * 20),90,40);
+   villain.push(v);
+   }
+                                                 
+   function drawbulletshero(){
+   var hfire = new hbullet(hero.x,hero.y,5,5);
+   bullets.push(hfire);
+   }
+   
+      function main(){
+ctx.clearRect(0,0,cvs.width,cvs.height);
+    if(state.current == state.startgame){
+    ctx.drawImage(startgameimage,0,0,cvs.width,cvs.height);
+    }
+    
+    if(state.current == state.game){
+    
+    ctx.drawImage(background,0,0,cvs.width,cvs.height);
+    
+       ctx.fillStyle="white";
+       ctx.font="10px Arial";
+       ctx.fillText("L i f e s: "+hH ,10,10);
+       ctx.fillText("B u l l e t s: "+bu ,200,10);
+       
+       
+       options();
+       hero.draw();
+       for(let c = 0;c < pba.length;c++){
+       pba[c].draw();
+       pba[c].update();
+       
+       }
+       a();
+       
+       for(let j = 0;j < villain.length;j++){
+       villain[j].draw();
+       villain[j].update();
+       for(let i = 0;i < bullets.length;i++){
+       
+       bullets[i].draw();
+       bullets[i].update(); if(bullets[i].x < villain[j].x+villain[j].w && 
+ bullets[i].x+bullets[i].w > villain[j].x
+&& bullets[i].y < villain[j].y+villain[j].h && 
+ bullets[i].y+bullets[i].h > villain[j].y
+       ){
+        bullets.splice(i);
+        villain.splice(j);
+        newvillain();
+       }
+       
+       }
+       
+        if(villain[j].y > cvs.height){
+          villain.splice(j);
+          hH-=1;
+          newvillain();
+         }
+         if(hH < 0){
+          state.current = state.gameover;
+         }
+       }
+       
+       }
+       
+       if(state.current == state.gameover){
+       ctx.drawImage(gameoverimage,0,0,cvs.width,cvs.height);
+       }
+       requestAnimationFrame(main);
+      }
+
+      
+      cvs.addEventListener('touchstart',
+        function(f){
+         var tX = f.touches[0].pageX;
+         var tY = f.touches[0].pageY;
+         
+         if(tX > cvs.width/2 && tY > 300){
+          hero.moveright();
+         }
+         if(tX < cvs.width/2 && tY > 300){
+          hero.moveleft();
+         }
+         if( tY < 300 && bu > 0 ){
+          drawbulletshero();
+          bu-=1;
+         }
+        }
+      );
+      
+      
+      
+      
+      cvs.addEventListener('click',function(f){
+      switch(state.current){
+       case state.startgame:
+        state.current = state.game;
+        hH=3;
+       break;
+       case state.game:
+        
+       break;
+       case state.gameover:
+        state.current = state.startgame;
+       break;
+      }
+      });
+      
+     powersarray();
+    function a(){
+     for(let u = 0;u < pba.length;u++){
+     if(hero.x < pba[u].x+pba[u].w && 
+ hero.x+hero.w > pba[u].x
+&& hero.y < pba[u].y+pba[u].h && 
+ hero.y+hero.h > pba[u].y
+       ){
+         pba.splice(u);
+         bu+=5;
+         powersarray();
+        }
+       if(pba[u].y+pba[u].h == cvs.height){
+         pba.splice(u);
+         powersarray();
+        }
+     }
+     }
+     main();
+      
+      
+    
+  </script>
+</html>
